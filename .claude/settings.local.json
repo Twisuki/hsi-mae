@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(ruff check:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(cd:*)"
     ]
   }
 }
