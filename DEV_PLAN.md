@@ -107,25 +107,23 @@ HSI-MAE Framework
 
 ### Phase 3：训练流程
 
-#### 3.1 预训练 `src/train/`
-- [ ] `src/train/__init__.py`
-- [ ] `src/train/pretrain.py`
-  - `PretrainEngine` 类
-  - 支持 `mask_ratio` / `lr` / `epochs` / `device`
-  - 日志输出（loss, lr, grad_norm）
-  - 保存 `encoder.pt`
+#### 3.1 预训练 `src/train/` ✅
+- [x] `src/train/__init__.py`
+- [x] `src/train/pretrain.py`
+  - `PretrainEngine` — lr warmup+cosine、grad clip、encoder.pt 保存
+  - 支持 `load_encoder(path)` 加载预训练权重
 
-#### 3.2 微调 `src/train/`
-- [ ] `src/train/finetune.py`
-  - `FinetuneEngine` 类
-  - 支持 `LinearProbe` / `FullFineTune` 两种模式
-  - 计算 OA / AA / Kappa / F1
-  - 保存 `classifier.pt`
+#### 3.2 微调 `src/train/` ✅
+- [x] `src/train/finetune.py`
+  - `FinetuneEngine` — linear_probe / full 两种模式
+  - OA / AA / Kappa / F1 指标
+  - `load_classifier(path)` 加载权重
 
-#### 3.3 数据增强工厂
-- [ ] `src/train/augmentations.py`
-  - `TrainAugmentation` — 训练时增强策略
-  - `ValAugmentation` — 验证时无增强
+#### 3.3 数据增强工厂 ✅
+- [x] `src/train/augmentations.py`
+  - `TrainAugmentation` — 光谱噪声/漂移/随机丢带/波段混排
+  - `ValAugmentation` — 空操作（no-op）
+  - `Compose` / `Normalize` / `ToTensor` 辅助
 
 ---
 
