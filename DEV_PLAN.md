@@ -83,25 +83,25 @@ HSI-MAE Framework
   - `mse_sam_loss(pred, target, lambda_sam=0.1)` — 组合损失
   - `MSELS` / `SAMLoss` / `MSESAMLoss` nn.Module 版本
 
-#### 2.3 模型定义 `src/models/`
+#### 2.3 模型定义 `src/models/` ✅
 
 ##### Encoder
-- [ ] `src/models/__init__.py`
-- [ ] `src/models/encoder.py`
-  - `HSIEncoder` — Conv2d 光谱 + 空间编码
-  - 支持自定义 `bands`, `dim`, `num_layers`
-  - 可选 `pretrained` 加载路径
+- [x] `src/models/__init__.py`
+- [x] `src/models/encoder.py`
+  - `HSIEncoder` — Conv2d 光谱投影 + 残差式空间编码
+  - 支持 `bands`, `dim`, `num_layers`, `norm`（bn/gn/none）
+  - `freeze()` / `unfreeze()` 接口
 
 ##### MAE
-- [ ] `src/models/mae.py`
-  - `HSIMAE` — Encoder + Decoder
-  - `forward(x)` — mask → encode → decode → reconstruct
-  - 分离 `encode()` / `decode()` 方法
+- [x] `src/models/mae.py`
+  - `HSIMAE` — Encoder + Conv Decoder
+  - `forward()` — mask → encode → decode，返回 `(recon, x_masked, mask)`
+  - 暴露 `encode_no_mask()` / `decode_features()` 供下游复用
 
 ##### Classifier
-- [ ] `src/models/classifier.py`
-  - `HSIClassifier` — 线性分类头
-  - `HSIFineTuner` — Encoder + Classifier 联合
+- [x] `src/models/classifier.py`
+  - `HSIClassifier` — linear / mlp 两种分类头
+  - `HSIFineTuner` — Encoder + Classifier 组合，支持 freeze encoder
 
 ---
 
