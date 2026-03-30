@@ -55,9 +55,9 @@ HSI-MAE Framework
 - [x] `src/utils/seed.py` — 随机种子固定
 - [x] `src/utils/logger.py` — 日志工具（loguru 封装）
 
-#### 1.3 数据集加载 `src/datasets/`
-- [ ] `src/datasets/__init__.py`
-- [ ] `src/datasets/hsi_dataset.py`
+#### 1.3 数据集加载 `src/datasets/` ✅
+- [x] `src/datasets/__init__.py`
+- [x] `src/datasets/hsi_dataset.py`
   - 支持 `.npy` / `.mat` 格式
   - 自动归一化到 [0, 1]
   - 支持 train/val split
