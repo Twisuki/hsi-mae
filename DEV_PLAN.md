@@ -67,20 +67,21 @@ HSI-MAE Framework
 
 ### Phase 2：核心模型实现
 
-#### 2.1 数据增强 `src/augmentations/`
-- [ ] `src/augmentations/__init__.py`
-- [ ] `src/augmentations/hsi_mask.py`
-  - `spectral_mask()` — 光谱维度随机 mask
-  - `spatial_mask()` — 空间维度随机 mask
-  - `joint_mask()` — 3D joint masking
-  - 统一接口 `MaskStrategy.apply(x) → x_masked, mask`
+#### 2.1 数据增强 `src/augmentations/` ✅
+- [x] `src/augmentations/__init__.py`
+- [x] `src/augmentations/hsi_mask.py`
+  - `SpectralMask` — 随机遮挡光谱波段
+  - `SpatialMask` — 随机遮挡空间位置
+  - `JointMask` — 3D 联合 masking
+  - `RandomMask` — 随机元素级 masking（MAE 默认）
+  - 统一 `nn.Module` 接口 + 函数式 API
 
-#### 2.2 损失函数 `src/losses/`
-- [ ] `src/losses/__init__.py`
-- [ ] `src/losses/sam.py`
-  - `sam_loss(pred, target)` — 光谱角映射损失
+#### 2.2 损失函数 `src/losses/` ✅
+- [x] `src/losses/__init__.py`
+- [x] `src/losses/sam.py`
+  - `sam_loss(pred, target)` — arccos/π 光谱角映射损失，范围 [0,1]
   - `mse_sam_loss(pred, target, lambda_sam=0.1)` — 组合损失
-  - 支持 batch 和 spatial 维度
+  - `MSELS` / `SAMLoss` / `MSESAMLoss` nn.Module 版本
 
 #### 2.3 模型定义 `src/models/`
 
