@@ -127,37 +127,36 @@ HSI-MAE Framework
 
 ---
 
-### Phase 4：入口脚本
+### Phase 4：入口脚本 ✅
 
-#### 4.1 预训练脚本
-- [ ] `scripts/run_pretrain.py`
+#### 4.1 预训练脚本 ✅
+- [x] `scripts/run_pretrain.py`
   - argparse 参数解析
   - 调用 `PretrainEngine`
-  - wandb / loguru 日志集成
+  - set_seed + loguru 日志
 
-#### 4.2 微调脚本
-- [ ] `scripts/run_finetune.py`
+#### 4.2 微调脚本 ✅
+- [x] `scripts/run_finetune.py`
   - argparse 参数解析
   - 调用 `FinetuneEngine`
-  - 评估指标输出
+  - 训练后自动在 test 集输出 OA / AA / Kappa / F1
 
 ---
 
-### Phase 5：评估与可视化
+### Phase 5：评估与可视化 ✅
 
-#### 5.1 评估工具
-- [ ] `src/utils/metrics.py`
-  - `overall_accuracy()`
-  - `average_accuracy()`
-  - `kappa_coefficient()`
-  - `f1_scores()`
-  - `classification_report()`
+#### 5.1 评估工具 ✅
+- [x] `src/utils/metrics.py`
+  - `overall_accuracy()` / `average_accuracy()` / `kappa_coefficient()`
+  - `f1_scores()` — macro + per-class
+  - `classification_report()` — sklearn 格式报告
 
-#### 5.2 可视化工具
-- [ ] `src/utils/visualization.py`
-  - `plot_spectral_signature()` — 光谱曲线
-  - `plot_confusion_matrix()` — 混淆矩阵
-  - `plot_classification_map()` — 分类结果图
+#### 5.2 可视化工具 ✅
+- [x] `src/utils/visualization.py`
+  - `plot_spectral_signature()` — 单像素/均值光谱曲线
+  - `plot_confusion_matrix()` — 归一化热力图
+  - `plot_classification_map()` — GT vs Prediction 并排
+  - `plot_training_curve()` — Loss + Metric 曲线
 
 ---
 
