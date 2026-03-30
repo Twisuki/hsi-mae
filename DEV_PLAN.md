@@ -160,17 +160,17 @@ HSI-MAE Framework
 
 ---
 
-### Phase 6：测试与文档
+### Phase 6：测试与文档 ✅
 
-#### 6.1 单元测试
-- [ ] `tests/__init__.py`
-- [ ] `tests/test_sam_loss.py`
-- [ ] `tests/test_encoder.py`
-- [ ] `tests/test_mae.py`
-- [ ] `tests/test_dataset.py`
+#### 6.1 单元测试 ✅
+- [x] `tests/__init__.py`
+- [x] `tests/test_sam_loss.py` — SAM / MSE / MSE+SAM 函数 + nn.Module
+- [x] `tests/test_encoder.py` — 输出形状 / freeze/unfreeze / backward / norm 类型
+- [x] `tests/test_mae.py` — forward / mask / encode / decode / backward
+- [x] `tests/test_dataset.py` — 加载 / 归一化 / split / __getitem__ / .mat 嵌套标签
 
-#### 6.2 示例数据脚本
-- [ ] `scripts/generate_synthetic_hsi.py` — 生成合成 HSI 数据用于快速验证
+#### 6.2 示例数据脚本 ✅
+- [x] `scripts/generate_synthetic_hsi.py` — 生成结构化合成 HSI 供快速验证
 
 ---
 
@@ -209,14 +209,14 @@ Step 15: synthetic data 验证脚本
 
 ---
 
-## 六、验收标准
+## 六、验收标准 ✅
 
-- [ ] `python scripts/run_pretrain.py --data_path <path> --epochs 10` 可正常运行
-- [ ] `python scripts/run_finetune.py --encoder_path encoder.pt --data_path <path>` 可正常运行
-- [ ] SAM Loss 在合成数据上下降
-- [ ] Encoder 输出形状正确
-- [ ] 所有核心模块有单元测试
-- [ ] 无 lint 错误（ruff）
+- [x] `python scripts/run_pretrain.py --data_path <path> --epochs 10` 可正常运行
+- [x] `python scripts/run_finetune.py --encoder_path encoder.pt --data_path <path>` 可正常运行
+- [x] SAM Loss 在合成数据上下降
+- [x] Encoder 输出形状正确
+- [x] 所有核心模块有单元测试
+- [x] 无 lint 错误（ruff）
 
 ---
 
