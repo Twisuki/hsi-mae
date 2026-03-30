@@ -37,23 +37,23 @@ HSI-MAE Framework
 
 ### Phase 1：基础框架搭建
 
-#### 1.1 目录结构创建
-- [ ] 创建 `src/datasets/`
-- [ ] 创建 `src/models/`
-- [ ] 创建 `src/augmentations/`
-- [ ] 创建 `src/losses/`
-- [ ] 创建 `src/train/`
-- [ ] 创建 `src/utils/`
-- [ ] 创建 `src/__init__.py`
-- [ ] 创建 `scripts/`
-- [ ] 更新 `.gitignore`
+#### 1.1 目录结构创建 ✅
+- [x] 创建 `src/datasets/`
+- [x] 创建 `src/models/`
+- [x] 创建 `src/augmentations/`
+- [x] 创建 `src/losses/`
+- [x] 创建 `src/train/`
+- [x] 创建 `src/utils/`
+- [x] 创建 `src/__init__.py`
+- [x] 创建 `scripts/`
+- [x] 创建 `tests/`
+- [x] 更新 `.gitignore`
 
-#### 1.2 配置管理系统 `src/utils/`
-- [ ] `src/utils/__init__.py`
-- [ ] `src/utils/config.py` — 参数配置类（pretrain / finetune）
-- [ ] `src/utils/seed.py` — 随机种子固定
-- [ ] `src/utils/logger.py` — 日志工具（loguru 封装）
-- [ ] `src/utils/__init__.py` 导出
+#### 1.2 配置管理系统 `src/utils/` ✅
+- [x] `src/utils/__init__.py`
+- [x] `src/utils/config.py` — 参数配置类（TrainConfig / ConfigManager）
+- [x] `src/utils/seed.py` — 随机种子固定
+- [x] `src/utils/logger.py` — 日志工具（loguru 封装）
 
 #### 1.3 数据集加载 `src/datasets/`
 - [ ] `src/datasets/__init__.py`

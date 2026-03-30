@@ -214,3 +214,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# HSI-MAE specific
+checkpoints/
+wandb/
+runs/
+*.pth
+*.pt
+data/
+configs/*.json
+!configs/.gitkeep
