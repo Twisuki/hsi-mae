@@ -4,7 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
+
+# 将项目根目录加入 sys.path，使 src 包可被导入
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import torch
 from torch.utils.data import DataLoader
@@ -65,9 +69,19 @@ def main() -> None:
         dim=args.encoder_dim,
         num_layers=args.encoder_layers,
     )
-    ckpt = torch.load(args.encoder_path, map_location="cpu", weights_only=False)
+    encoder_path = Path(args.encoder_path)
+    if not encoder_path.exists():
+        fallback = Path(args.save_dir) / "final_encoder.pt"
+        if fallback.exists():
+            encoder_path = fallback
+            logger.info(f"best_encoder.pt not found, using {encoder_path}")
+        else:
+            raise FileNotFoundError(
+                f"Encoder not found: {args.encoder_path} (tried fallback: {fallback})"
+            )
+    ckpt = torch.load(encoder_path, map_location="cpu", weights_only=False)
     encoder.load_state_dict(ckpt["encoder_state"])
-    logger.info(f"Encoder loaded from {args.encoder_path}")
+    logger.info(f"Encoder loaded from {encoder_path}")
 
     # Datasets
     train_ds = HSIDataset(

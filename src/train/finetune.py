@@ -109,6 +109,7 @@ class FinetuneEngine:
         self.save_dir = Path(save_dir)
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.num_classes = num_classes
+        self.log_interval = log_interval
         self.logger = get_logger()
         self.global_step = 0
         self.epoch = 0

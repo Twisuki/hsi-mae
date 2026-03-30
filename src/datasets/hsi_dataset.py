@@ -179,11 +179,11 @@ class HSIDataset(Dataset):
         h, w = self.data.shape[:2]
         row, col = flat_idx // w, flat_idx % w
 
-        # Extract pixel spectrum
+        # Extract pixel spectrum: shape [C,] from [H,W,C]
         spectrum = self.data[row, col]  # shape: [C,]
 
         if self.to_chw:
-            spectrum = spectrum[np.newaxis, ...]  # [1, C] (single-pixel "image")
+            spectrum = spectrum[:, np.newaxis, np.newaxis]  # [C, 1, 1]
 
         x = torch.from_numpy(spectrum.copy())
 

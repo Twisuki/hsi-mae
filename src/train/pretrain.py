@@ -185,9 +185,13 @@ class PretrainEngine:
             val_loss: float | None = None
             if val_loader is not None and epoch % self.val_interval == 0:
                 val_loss = self._validate(val_loader)
-                if val_loss < best_val_loss:
+                if not math.isnan(val_loss) and val_loss < best_val_loss:
                     best_val_loss = val_loss
                     self._save_checkpoint("best_encoder.pt")
+
+            # Always save best on first epoch as fallback
+            if epoch == 0:
+                self._save_checkpoint("best_encoder.pt")
 
             # ---- Log epoch ----
             lr_now = self.optimizer.param_groups[0]["lr"]

@@ -4,7 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
+
+# 将项目根目录加入 sys.path，使 src 包可被导入
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from torch.utils.data import DataLoader
 
@@ -25,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mat-label-key", type=str, default="labels")
 
     # Model
-    parser.add_argument("--bands", type=int, default=200, help="Number of spectral bands")
+    parser.add_argument("--bands", type=int, default=None, help="Number of spectral bands (auto-detected from data if not set)")
     parser.add_argument("--encoder-dim", type=int, default=256)
     parser.add_argument("--encoder-layers", type=int, default=4)
     parser.add_argument("--decoder-dim", type=int, default=256)
@@ -103,9 +107,13 @@ def main() -> None:
         f"Bands: {train_ds.num_bands}"
     )
 
+    # Auto-detect bands from dataset if not provided
+    bands = args.bands if args.bands is not None else train_ds.num_bands
+    logger.info(f"Using bands={bands}")
+
     # Engine
     engine = PretrainEngine(
-        bands=args.bands,
+        bands=bands,
         encoder_dim=args.encoder_dim,
         encoder_layers=args.encoder_layers,
         decoder_dim=args.decoder_dim,

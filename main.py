@@ -60,8 +60,8 @@ def _run_script(script: str, extra_args: list[str] | None = None) -> int:
     return subprocess.run(cmd, cwd=_current_dir).returncode
 
 
-def _env(key: str, default: str = "") -> str:
-    return os.environ.get(key, default)
+def _env(key: str) -> str:
+    return os.environ.get(key, "")
 
 
 MENU = """
@@ -84,12 +84,12 @@ MENU = """
 
 def action_gen_data() -> None:
     print("\n--- 生成合成数据 ---")
-    bands = input(f"光谱波段数 (默认 {_env('BANDS', '200')}): ").strip()
-    bands = bands or _env("BANDS", "200")
-    classes = input(f"类别数 (默认 {_env('NUM_CLASSES', '8')}): ").strip()
-    classes = classes or _env("NUM_CLASSES", "8")
-    seed = input(f"随机种子 (默认 {_env('SEED', '42')}): ").strip()
-    seed = seed or _env("SEED", "42")
+    bands = input(f"光谱波段数 (默认 {_env('BANDS')}): ").strip()
+    bands = bands or _env("BANDS")
+    classes = input(f"类别数 (默认 {_env('NUM_CLASSES')}): ").strip()
+    classes = classes or _env("NUM_CLASSES")
+    seed = input(f"随机种子 (默认 {_env('SEED')}): ").strip()
+    seed = seed or _env("SEED")
     height = input("图像高度 (默认 64): ").strip() or "64"
     width = input("图像宽度 (默认 64): ").strip() or "64"
 
@@ -107,33 +107,33 @@ def action_gen_data() -> None:
 def action_pretrain() -> None:
     print("\n--- 预训练 HSI-MAE ---")
     data_path = input(
-        f"数据路径 (默认 {_env('DATA_PATH', 'data/synthetic_hsi.npy')}): "
+        f"数据路径 (默认 {_env('DATA_PATH')}): "
     ).strip()
-    data_path = data_path or _env("DATA_PATH", "data/synthetic_hsi.npy")
+    data_path = data_path or _env("DATA_PATH")
 
-    bands = input(f"光谱波段数 (默认 {_env('BANDS', '200')}): ").strip()
-    bands = bands or _env("BANDS", "200")
+    bands = input(f"光谱波段数 (默认 {_env('BANDS')}): ").strip()
+    bands = bands or _env("BANDS")
 
-    dim = input(f"Encoder 维度 (默认 {_env('ENCODER_DIM', '256')}): ").strip()
-    dim = dim or _env("ENCODER_DIM", "256")
+    dim = input(f"Encoder 维度 (默认 {_env('ENCODER_DIM')}): ").strip()
+    dim = dim or _env("ENCODER_DIM")
 
-    layers = input(f"Encoder 层数 (默认 {_env('ENCODER_LAYERS', '4')}): ").strip()
-    layers = layers or _env("ENCODER_LAYERS", "4")
+    layers = input(f"Encoder 层数 (默认 {_env('ENCODER_LAYERS')}): ").strip()
+    layers = layers or _env("ENCODER_LAYERS")
 
-    mask = input(f"Mask 比例 (默认 {_env('MASK_RATIO', '0.75')}): ").strip()
-    mask = mask or _env("MASK_RATIO", "0.75")
+    mask = input(f"Mask 比例 (默认 {_env('MASK_RATIO')}): ").strip()
+    mask = mask or _env("MASK_RATIO")
 
-    epochs = input(f"训练轮数 (默认 {_env('EPOCHS', '100')}): ").strip()
-    epochs = epochs or _env("EPOCHS", "100")
+    epochs = input(f"训练轮数 (默认 {_env('EPOCHS')}): ").strip()
+    epochs = epochs or _env("EPOCHS")
 
-    batch = input(f"Batch size (默认 {_env('BATCH_SIZE', '256')}): ").strip()
-    batch = batch or _env("BATCH_SIZE", "256")
+    batch = input(f"Batch size (默认 {_env('BATCH_SIZE')}): ").strip()
+    batch = batch or _env("BATCH_SIZE")
 
-    save_dir = input(f"保存目录 (默认 {_env('SAVE_DIR', 'checkpoints')}): ").strip()
-    save_dir = save_dir or _env("SAVE_DIR", "checkpoints")
+    save_dir = input(f"保存目录 (默认 {_env('SAVE_DIR')}): ").strip()
+    save_dir = save_dir or _env("SAVE_DIR")
 
-    device = input(f"设备 (cuda/cpu, 默认 {_env('DEVICE', 'cuda')}): ").strip()
-    device = device or _env("DEVICE", "cuda")
+    device = input(f"设备 (cuda/cpu, 默认 {_env('DEVICE')}): ").strip()
+    device = device or _env("DEVICE")
 
     args = [
         "--data-path", data_path,
@@ -152,39 +152,39 @@ def action_pretrain() -> None:
 def action_finetune() -> None:
     print("\n--- 微调分类 ---")
     data_path = input(
-        f"数据路径 (默认 {_env('DATA_PATH', 'data/synthetic_hsi.npy')}): "
+        f"数据路径 (默认 {_env('DATA_PATH')}): "
     ).strip()
-    data_path = data_path or _env("DATA_PATH", "data/synthetic_hsi.npy")
+    data_path = data_path or _env("DATA_PATH")
 
     labels_path = input(
-        f"标签路径 (默认 {_env('LABELS_PATH', 'data/synthetic_hsi_gt.npy')}): "
+        f"标签路径 (默认 {_env('LABELS_PATH')}): "
     ).strip()
-    labels_path = labels_path or _env("LABELS_PATH", "data/synthetic_hsi_gt.npy")
+    labels_path = labels_path or _env("LABELS_PATH")
 
     encoder_path = input(
-        f"预训练模型路径 (默认 {_env('ENCODER_PATH', 'checkpoints/best_encoder.pt')}): "
+        f"预训练模型路径 (默认 {_env('ENCODER_PATH')}): "
     ).strip()
-    encoder_path = encoder_path or _env("ENCODER_PATH", "checkpoints/best_encoder.pt")
+    encoder_path = encoder_path or _env("ENCODER_PATH")
 
-    bands = input(f"光谱波段数 (默认 {_env('BANDS', '200')}): ").strip()
-    bands = bands or _env("BANDS", "200")
+    bands = input(f"光谱波段数 (默认 {_env('BANDS')}): ").strip()
+    bands = bands or _env("BANDS")
 
-    num_classes = input(f"类别数 (默认 {_env('NUM_CLASSES', '8')}): ").strip()
-    num_classes = num_classes or _env("NUM_CLASSES", "8")
+    num_classes = input(f"类别数 (默认 {_env('NUM_CLASSES')}): ").strip()
+    num_classes = num_classes or _env("NUM_CLASSES")
 
     mode = input(
-        f"微调模式 (linear_probe / full, 默认 {_env('FINETUNE_MODE', 'full')}): "
+        f"微调模式 (linear_probe / full, 默认 {_env('FINETUNE_MODE')}): "
     ).strip()
-    mode = mode or _env("FINETUNE_MODE", "full")
+    mode = mode or _env("FINETUNE_MODE")
 
-    epochs = input(f"训练轮数 (默认 {_env('EPOCHS', '100')}): ").strip()
-    epochs = epochs or _env("EPOCHS", "100")
+    epochs = input(f"训练轮数 (默认 {_env('EPOCHS')}): ").strip()
+    epochs = epochs or _env("EPOCHS")
 
-    batch = input(f"Batch size (默认 {_env('BATCH_SIZE', '256')}): ").strip()
-    batch = batch or _env("BATCH_SIZE", "256")
+    batch = input(f"Batch size (默认 {_env('BATCH_SIZE')}): ").strip()
+    batch = batch or _env("BATCH_SIZE")
 
-    save_dir = input(f"保存目录 (默认 {_env('SAVE_DIR', 'checkpoints')}): ").strip()
-    save_dir = save_dir or _env("SAVE_DIR", "checkpoints")
+    save_dir = input(f"保存目录 (默认 {_env('SAVE_DIR')}): ").strip()
+    save_dir = save_dir or _env("SAVE_DIR")
 
     args = [
         "--data-path", data_path,
@@ -228,29 +228,30 @@ def action_export_env() -> None:
     print("将当前值写入 .env.local, 优先级高于 .env, 不提交到 git")
     path = _current_dir / ".env.local"
     lines = ["# HSI-MAE 本地配置 (不提交到 git)\n"]
-    for key, default in [
-        ("DATA_PATH", "data/synthetic_hsi.npy"),
-        ("LABELS_PATH", "data/synthetic_hsi_gt.npy"),
-        ("BANDS", "200"),
-        ("ENCODER_DIM", "256"),
-        ("ENCODER_LAYERS", "4"),
-        ("MASK_RATIO", "0.75"),
-        ("NUM_CLASSES", "8"),
-        ("EPOCHS", "100"),
-        ("BATCH_SIZE", "256"),
-        ("LR", "0.001"),
-        ("WEIGHT_DECAY", "0.0001"),
-        ("WARMUP_EPOCHS", "10"),
-        ("ENCODER_PATH", "checkpoints/best_encoder.pt"),
-        ("DEVICE", "cuda"),
-        ("NUM_WORKERS", "4"),
-        ("SAVE_DIR", "checkpoints"),
-        ("LOG_INTERVAL", "10"),
-        ("SEED", "42"),
-        ("FINETUNE_MODE", "full"),
+    for key in [
+        "DATA_PATH",
+        "LABELS_PATH",
+        "BANDS",
+        "ENCODER_DIM",
+        "ENCODER_LAYERS",
+        "MASK_RATIO",
+        "NUM_CLASSES",
+        "EPOCHS",
+        "BATCH_SIZE",
+        "LR",
+        "WEIGHT_DECAY",
+        "WARMUP_EPOCHS",
+        "ENCODER_PATH",
+        "DEVICE",
+        "NUM_WORKERS",
+        "SAVE_DIR",
+        "LOG_INTERVAL",
+        "SEED",
+        "FINETUNE_MODE",
     ]:
-        current = input(f"{key} [{os.environ.get(key, default)}]: ").strip()
-        val = current or os.environ.get(key, default)
+        current_val = _env(key) if _env(key) else ""
+        current = input(f"{key} [{current_val}]: ").strip()
+        val = current or _env(key)
         lines.append(f"{key}={val}\n")
 
     path.write_text("".join(lines), encoding="utf-8")
