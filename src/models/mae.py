@@ -84,7 +84,9 @@ class HSIMAE(nn.Module):
         """Decode latent to spectral reconstruction."""
         return self.decoder(z)
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Full MAE forward: mask → encode → decode.
 

@@ -10,6 +10,7 @@ import numpy as np
 # Spectral Signature
 # -------------------------------------------------------------------------
 
+
 def plot_spectral_signature(
     signatures: np.ndarray,
     labels: np.ndarray | None = None,
@@ -68,6 +69,7 @@ def plot_spectral_signature(
 # -------------------------------------------------------------------------
 # Confusion Matrix
 # -------------------------------------------------------------------------
+
 
 def plot_confusion_matrix(
     y_true: np.ndarray,
@@ -130,7 +132,9 @@ def plot_confusion_matrix(
         for j in range(num_classes):
             val = show[i, j]
             color = "white" if val > 50 else "black"
-            ax.text(j, i, f"{val:{fmt}}", ha="center", va="center", color=color, fontsize=8)
+            ax.text(
+                j, i, f"{val:{fmt}}", ha="center", va="center", color=color, fontsize=8
+            )
 
     fig.colorbar(im, ax=ax, **cbar_kw)
     fig.tight_layout()
@@ -145,6 +149,7 @@ def plot_confusion_matrix(
 # -------------------------------------------------------------------------
 # Classification Map
 # -------------------------------------------------------------------------
+
 
 def plot_classification_map(
     ground_truth: np.ndarray | None,
@@ -208,6 +213,7 @@ def plot_classification_map(
 # -------------------------------------------------------------------------
 # Training Curve
 # -------------------------------------------------------------------------
+
 
 def plot_training_curve(
     train_losses: list[float],

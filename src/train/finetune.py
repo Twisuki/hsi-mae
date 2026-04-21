@@ -19,14 +19,13 @@ from src.utils.logger import get_logger
 # Metrics
 # -------------------------------------------------------------------------
 
+
 def overall_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """Overall Accuracy (OA)."""
     return (y_true == y_pred).mean()
 
 
-def average_accuracy(
-    y_true: np.ndarray, y_pred: np.ndarray, num_classes: int
-) -> float:
+def average_accuracy(y_true: np.ndarray, y_pred: np.ndarray, num_classes: int) -> float:
     """Average Accuracy (AA) — mean recall across classes."""
     recalls = []
     for c in range(num_classes):
@@ -56,7 +55,11 @@ def f1_scores(
         fn = ((y_true == c) & (y_pred != c)).sum()
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        f1 = (
+            2 * precision * recall / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
         f1_per_class.append(f1)
     return {
         "f1_macro": float(np.mean(f1_per_class)),
@@ -67,6 +70,7 @@ def f1_scores(
 # -------------------------------------------------------------------------
 # FinetuneEngine
 # -------------------------------------------------------------------------
+
 
 class FinetuneEngine:
     """
@@ -114,7 +118,7 @@ class FinetuneEngine:
         self.global_step = 0
         self.epoch = 0
 
-        freeze_encoder = (mode == "linear_probe")
+        freeze_encoder = mode == "linear_probe"
         self.model = HSIFineTuner(
             encoder=encoder,
             num_classes=num_classes,

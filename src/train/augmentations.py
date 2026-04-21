@@ -61,9 +61,7 @@ class TrainAugmentation:
 
         # 2. Random spectral shift
         if self.shift_range > 0:
-            shift = torch.empty_like(x).uniform_(
-                -self.shift_range, self.shift_range
-            )
+            shift = torch.empty_like(x).uniform_(-self.shift_range, self.shift_range)
             x = x + shift
 
         # 3. Random band dropout

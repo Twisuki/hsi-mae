@@ -21,9 +21,7 @@ def overall_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return accuracy_score(y_true, y_pred)
 
 
-def average_accuracy(
-    y_true: np.ndarray, y_pred: np.ndarray, num_classes: int
-) -> float:
+def average_accuracy(y_true: np.ndarray, y_pred: np.ndarray, num_classes: int) -> float:
     """
     Average Accuracy (AA).
 
@@ -43,7 +41,9 @@ def kappa_coefficient(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
     Measures inter-rater agreement accounting for chance.
     """
-    cm = confusion_matrix(y_true, y_pred, labels=range(max(y_true.max(), y_pred.max()) + 1))
+    cm = confusion_matrix(
+        y_true, y_pred, labels=range(max(y_true.max(), y_pred.max()) + 1)
+    )
     n = cm.sum()
     if n == 0:
         return 0.0
@@ -77,7 +77,11 @@ def f1_scores(
         fn = int(((y_true == c) & (y_pred != c)).sum())
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        f1 = (
+            2 * precision * recall / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
         f1_per_class.append(f1)
 
     return {

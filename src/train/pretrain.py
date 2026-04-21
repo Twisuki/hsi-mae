@@ -195,10 +195,7 @@ class PretrainEngine:
 
             # ---- Log epoch ----
             lr_now = self.optimizer.param_groups[0]["lr"]
-            msg = (
-                f"Epoch {epoch + 1}/{epochs} | "
-                f"train_loss={train_loss:.4f}"
-            )
+            msg = f"Epoch {epoch + 1}/{epochs} | train_loss={train_loss:.4f}"
             if val_loss is not None:
                 msg += f" | val_loss={val_loss:.4f}"
             msg += f" | lr={lr_now:.2e}"

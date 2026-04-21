@@ -32,11 +32,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-classes", type=int, default=16)
 
     # Model
-    parser.add_argument("--encoder-path", type=str, required=True, help="Path to pretrained encoder")
+    parser.add_argument(
+        "--encoder-path", type=str, required=True, help="Path to pretrained encoder"
+    )
     parser.add_argument("--bands", type=int, default=200)
     parser.add_argument("--encoder-dim", type=int, default=256)
     parser.add_argument("--encoder-layers", type=int, default=4)
-    parser.add_argument("--mode", type=str, default="full", choices=["linear_probe", "full"])
+    parser.add_argument(
+        "--mode", type=str, default="full", choices=["linear_probe", "full"]
+    )
 
     # Training
     parser.add_argument("--epochs", type=int, default=100)
@@ -118,12 +122,27 @@ def main() -> None:
         to_chw=True,
     )
 
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
-                              num_workers=args.num_workers, pin_memory=True)
-    val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False,
-                            num_workers=args.num_workers, pin_memory=True)
-    test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False,
-                             num_workers=args.num_workers, pin_memory=True)
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=args.num_workers,
+        pin_memory=True,
+    )
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        pin_memory=True,
+    )
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        pin_memory=True,
+    )
 
     logger.info(
         f"Train: {len(train_ds)} | Val: {len(val_ds)} | Test: {len(test_ds)} | "
@@ -149,8 +168,11 @@ def main() -> None:
     # Final test evaluation
     logger.info("=== Test Evaluation ===")
     engine.model.load_state_dict(
-        torch.load(Path(args.save_dir) / "best_classifier.pt",
-                   map_location=engine.device, weights_only=False)["model_state"]
+        torch.load(
+            Path(args.save_dir) / "best_classifier.pt",
+            map_location=engine.device,
+            weights_only=False,
+        )["model_state"]
     )
 
     metrics = engine._evaluate(test_loader)

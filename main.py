@@ -94,21 +94,25 @@ def action_gen_data() -> None:
     width = input("图像宽度 (默认 64): ").strip() or "64"
 
     args = [
-        "--bands", bands,
-        "--num-classes", classes,
-        "--seed", seed,
-        "--height", height,
-        "--width", width,
-        "--output-dir", "data",
+        "--bands",
+        bands,
+        "--num-classes",
+        classes,
+        "--seed",
+        seed,
+        "--height",
+        height,
+        "--width",
+        width,
+        "--output-dir",
+        "data",
     ]
     _run_script("generate_synthetic_hsi.py", args)
 
 
 def action_pretrain() -> None:
     print("\n--- 预训练 HSI-MAE ---")
-    data_path = input(
-        f"数据路径 (默认 {_env('DATA_PATH')}): "
-    ).strip()
+    data_path = input(f"数据路径 (默认 {_env('DATA_PATH')}): ").strip()
     data_path = data_path or _env("DATA_PATH")
 
     bands = input(f"光谱波段数 (默认 {_env('BANDS')}): ").strip()
@@ -136,34 +140,37 @@ def action_pretrain() -> None:
     device = device or _env("DEVICE")
 
     args = [
-        "--data-path", data_path,
-        "--bands", bands,
-        "--encoder-dim", dim,
-        "--encoder-layers", layers,
-        "--mask-ratio", mask,
-        "--epochs", epochs,
-        "--batch-size", batch,
-        "--save-dir", save_dir,
-        "--device", device,
+        "--data-path",
+        data_path,
+        "--bands",
+        bands,
+        "--encoder-dim",
+        dim,
+        "--encoder-layers",
+        layers,
+        "--mask-ratio",
+        mask,
+        "--epochs",
+        epochs,
+        "--batch-size",
+        batch,
+        "--save-dir",
+        save_dir,
+        "--device",
+        device,
     ]
     _run_script("run_pretrain.py", args)
 
 
 def action_finetune() -> None:
     print("\n--- 微调分类 ---")
-    data_path = input(
-        f"数据路径 (默认 {_env('DATA_PATH')}): "
-    ).strip()
+    data_path = input(f"数据路径 (默认 {_env('DATA_PATH')}): ").strip()
     data_path = data_path or _env("DATA_PATH")
 
-    labels_path = input(
-        f"标签路径 (默认 {_env('LABELS_PATH')}): "
-    ).strip()
+    labels_path = input(f"标签路径 (默认 {_env('LABELS_PATH')}): ").strip()
     labels_path = labels_path or _env("LABELS_PATH")
 
-    encoder_path = input(
-        f"预训练模型路径 (默认 {_env('ENCODER_PATH')}): "
-    ).strip()
+    encoder_path = input(f"预训练模型路径 (默认 {_env('ENCODER_PATH')}): ").strip()
     encoder_path = encoder_path or _env("ENCODER_PATH")
 
     bands = input(f"光谱波段数 (默认 {_env('BANDS')}): ").strip()
@@ -187,15 +194,24 @@ def action_finetune() -> None:
     save_dir = save_dir or _env("SAVE_DIR")
 
     args = [
-        "--data-path", data_path,
-        "--labels-path", labels_path,
-        "--encoder-path", encoder_path,
-        "--bands", bands,
-        "--num-classes", num_classes,
-        "--mode", mode,
-        "--epochs", epochs,
-        "--batch-size", batch,
-        "--save-dir", save_dir,
+        "--data-path",
+        data_path,
+        "--labels-path",
+        labels_path,
+        "--encoder-path",
+        encoder_path,
+        "--bands",
+        bands,
+        "--num-classes",
+        num_classes,
+        "--mode",
+        mode,
+        "--epochs",
+        epochs,
+        "--batch-size",
+        batch,
+        "--save-dir",
+        save_dir,
     ]
     _run_script("run_finetune.py", args)
 
@@ -216,10 +232,26 @@ def action_env() -> None:
     print("\n--- 当前环境变量 ---")
     keys = sorted(os.environ)
     for k in keys:
-        if any(k.startswith(p) for p in ["DATA", "BANDS", "ENCODER", "MASK", "NUM",
-                                           "EPOCHS", "BATCH", "LR", "WEIGHT",
-                                           "WARMUP", "DEVICE", "SAVE", "LOG",
-                                           "SEED", "FINETUNE"]):
+        if any(
+            k.startswith(p)
+            for p in [
+                "DATA",
+                "BANDS",
+                "ENCODER",
+                "MASK",
+                "NUM",
+                "EPOCHS",
+                "BATCH",
+                "LR",
+                "WEIGHT",
+                "WARMUP",
+                "DEVICE",
+                "SAVE",
+                "LOG",
+                "SEED",
+                "FINETUNE",
+            ]
+        ):
             print(f"  {k}={os.environ[k]}")
 
 
@@ -262,6 +294,7 @@ def action_export_env() -> None:
 # -------------------------------------------------------------------------
 # Main
 # -------------------------------------------------------------------------
+
 
 def main() -> None:
     actions: dict[str, Callable[[], None]] = {

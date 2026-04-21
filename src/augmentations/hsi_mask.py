@@ -74,9 +74,7 @@ class JointMask(MaskStrategy):
     resulting in a sparser representation.
     """
 
-    def __init__(
-        self, spectral_ratio: float = 0.5, spatial_ratio: float = 0.5
-    ) -> None:
+    def __init__(self, spectral_ratio: float = 0.5, spatial_ratio: float = 0.5) -> None:
         super().__init__()
         self.spectral_ratio = spectral_ratio
         self.spatial_ratio = spatial_ratio
@@ -84,13 +82,9 @@ class JointMask(MaskStrategy):
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         B, C, H, W = x.shape
         # Spectral mask: [B, C, 1, 1]
-        s_mask = (
-            torch.rand(B, C, 1, 1, device=x.device) > self.spectral_ratio
-        )
+        s_mask = torch.rand(B, C, 1, 1, device=x.device) > self.spectral_ratio
         # Spatial mask: [B, 1, H, W]
-        p_mask = (
-            torch.rand(B, 1, H, W, device=x.device) > self.spatial_ratio
-        )
+        p_mask = torch.rand(B, 1, H, W, device=x.device) > self.spatial_ratio
         # Joint: both must keep
         mask = s_mask & p_mask
         x_masked = x.clone()

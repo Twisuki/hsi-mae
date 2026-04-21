@@ -51,7 +51,9 @@ class HSIClassifier(nn.Module):
                 nn.Conv2d(hid, num_classes, kernel_size=1),
             )
         else:
-            msg = f"Unknown classifier variant: {variant!r} (expected 'linear' or 'mlp')"
+            msg = (
+                f"Unknown classifier variant: {variant!r} (expected 'linear' or 'mlp')"
+            )
             raise ValueError(msg)
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
