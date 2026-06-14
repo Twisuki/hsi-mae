@@ -72,10 +72,8 @@ MENU = """
   [1] 生成合成数据
   [2] 预训练 HSI-MAE
   [3] 微调分类
-  [4] 运行测试
-  [5] 代码检查
-  [6] 查看当前环境变量
-  [7] 导出配置到 .env.local
+  [4] 查看当前环境变量
+  [5] 导出配置到 .env.local
 
   [0] 退出
 
@@ -216,18 +214,6 @@ def action_finetune() -> None:
     _run_script("run_finetune.py", args)
 
 
-def action_tests() -> None:
-    print("\n--- 运行测试 ---")
-    pytest_args = ["pytest", str(_current_dir / "tests"), "-v"]
-    subprocess.run(pytest_args, cwd=_current_dir)
-
-
-def action_lint() -> None:
-    print("\n--- 代码检查 ---")
-    ruff_args = ["uv", "run", "ruff", "check", "."]
-    subprocess.run(ruff_args, cwd=_current_dir)
-
-
 def action_env() -> None:
     print("\n--- 当前环境变量 ---")
     keys = sorted(os.environ)
@@ -301,10 +287,8 @@ def main() -> None:
         "1": action_gen_data,
         "2": action_pretrain,
         "3": action_finetune,
-        "4": action_tests,
-        "5": action_lint,
-        "6": action_env,
-        "7": action_export_env,
+        "4": action_env,
+        "5": action_export_env,
     }
 
     print("HSI-MAE: 高光谱图像基础模型")
