@@ -5,7 +5,11 @@
       "Bash(uv run:*)",
       "Bash(cd:*)",
       "WebSearch",
-      "WebFetch(domain:www.ehu.eus)"
+      "WebFetch(domain:www.ehu.eus)",
+      "Bash(python -m ruff check .)",
+      "Bash(py -m ruff check .)",
+      "Bash(.venv/Scripts/python.exe -m ruff check .)",
+      "Bash(.venv/Scripts/python.exe -m ruff check . --fix)"
     ]
   }
 }

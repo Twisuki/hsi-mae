@@ -15,7 +15,6 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT_DIR))
 
 import numpy as np
-from tqdm import tqdm
 
 
 def parse_args() -> argparse.Namespace:
@@ -140,7 +139,7 @@ def preprocess_and_save(
     np.save(data_path, hsi_data)
     np.save(labels_path, labels)
 
-    print(f"\n数据已保存:")
+    print("\n数据已保存:")
     print(f"  数据: {data_path} (形状: {hsi_data.shape})")
     print(f"  标签: {labels_path} (形状: {labels.shape})")
 
@@ -167,7 +166,7 @@ def main() -> None:
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
 
-    print(f"=== Indian Pines 数据集预处理 ===")
+    print("=== Indian Pines 数据集预处理 ===")
     print(f"输入目录: {input_dir}")
     print(f"输出目录: {output_dir}\n")
 
@@ -176,10 +175,10 @@ def main() -> None:
     preprocess_and_save(hsi_data, labels, output_dir)
 
     print("\n预处理完成!")
-    print(f"\n现在可以使用以下命令进行预训练:")
+    print("\n现在可以使用以下命令进行预训练:")
     print(f"  python scripts/run_pretrain.py --data-path {output_dir / 'indian_pines.npy'}")
-    print(f"\n或使用交互式入口:")
-    print(f"  python example/indian-pines/main.py")
+    print("\n或使用交互式入口:")
+    print("  python example/indian-pines/main.py")
 
 
 if __name__ == "__main__":

@@ -71,8 +71,8 @@ def download_indian_pines(output_dir: Path) -> None:
             if filepath.exists():
                 filepath.unlink()
             print("\n请手动下载数据集:")
-            print(f"  1. 访问 https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes")
-            print(f"  2. 下载 Indian Pines 数据集")
+            print("  1. 访问 https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes")
+            print("  2. 下载 Indian Pines 数据集")
             print(f"  3. 将 .mat 文件放置到 {output_dir} 目录")
             sys.exit(1)
 
@@ -88,14 +88,14 @@ def main() -> None:
     args = parse_args()
     output_dir = Path(args.output_dir)
 
-    print(f"=== Indian Pines 数据集下载 ===")
+    print("=== Indian Pines 数据集下载 ===")
     print(f"输出目录: {output_dir}\n")
 
     download_indian_pines(output_dir)
 
     print("\n下载完成!")
-    print(f"\n接下来运行预处理脚本:")
-    print(f"  python example/indian-pines/preprocess.py")
+    print("\n接下来运行预处理脚本:")
+    print("  python example/indian-pines/preprocess.py")
 
 
 if __name__ == "__main__":

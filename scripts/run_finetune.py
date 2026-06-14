@@ -55,6 +55,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--save-dir", type=str, default="checkpoints")
     parser.add_argument("--log-interval", type=int, default=10)
     parser.add_argument("--log-file", type=str, default=None)
+    parser.add_argument(
+        "--class-names",
+        type=str,
+        default=None,
+        help="Comma-separated class names for visualization",
+    )
 
     return parser.parse_args()
 
@@ -150,6 +156,7 @@ def main() -> None:
     )
 
     # Engine
+    class_names = args.class_names.split(",") if args.class_names else None
     engine = FinetuneEngine(
         encoder=encoder,
         num_classes=args.num_classes,
@@ -160,6 +167,8 @@ def main() -> None:
         save_dir=args.save_dir,
         log_interval=args.log_interval,
         seed=args.seed,
+        visualize=True,
+        class_names=class_names,
     )
 
     # Train

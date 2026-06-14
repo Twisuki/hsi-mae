@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from pathlib import Path
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -13,6 +14,7 @@ from tqdm import tqdm
 from src.losses.sam import mse_sam_loss
 from src.models.mae import HSIMAE
 from src.utils.logger import get_logger
+from src.utils.visualization import plot_reconstruction_progress, plot_training_curve
 
 
 class PretrainEngine:
@@ -57,6 +59,7 @@ class PretrainEngine:
         log_interval: int = 10,
         val_interval: int = 1,
         seed: int = 42,
+        visualize: bool = True,
     ) -> None:
         self.bands = bands
         self.encoder_dim = encoder_dim
@@ -69,6 +72,7 @@ class PretrainEngine:
         self.log_interval = log_interval
         self.val_interval = val_interval
         self.seed = seed
+        self.visualize = visualize
 
         self.save_dir.mkdir(parents=True, exist_ok=True)
 
@@ -91,6 +95,13 @@ class PretrainEngine:
         self.logger = get_logger()
         self.global_step = 0
         self.epoch = 0
+
+        # Visualization history
+        self.train_losses: list[float] = []
+        self.val_losses: list[float] = []
+        self.train_metrics: list[float] = []
+        self.val_metrics: list[float] = []
+        self.recon_samples: list[dict[str, Any]] = []  # Store original/recon for visualization
 
     # -------------------------------------------------------------------------
     # Learning rate schedule
@@ -131,6 +142,8 @@ class PretrainEngine:
             "loss": loss.item(),
             "grad_norm": grad_norm.item(),
             "lr": self.optimizer.param_groups[0]["lr"],
+            "recon": recon.detach().cpu(),
+            "original": x.detach().cpu(),
         }
 
     # -------------------------------------------------------------------------
@@ -158,6 +171,13 @@ class PretrainEngine:
 
         best_val_loss = float("inf")
 
+        # Clear history
+        self.train_losses = []
+        self.val_losses = []
+        self.train_metrics = []
+        self.val_metrics = []
+        self.recon_samples = []
+
         for epoch in range(epochs):
             self.epoch = epoch
             self._adjust_lr(epoch, epochs)
@@ -166,11 +186,18 @@ class PretrainEngine:
             self.model.train()
             pbar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{epochs}")
             epoch_losses: list[float] = []
+            epoch_recon: torch.Tensor | None = None
+            epoch_original: torch.Tensor | None = None
 
             for batch_idx, (x, _) in enumerate(pbar):
                 metrics = self._train_step(x)
                 epoch_losses.append(metrics["loss"])
                 self.global_step += 1
+
+                # Store first sample of first batch for visualization
+                if batch_idx == 0 and self.visualize:
+                    epoch_original = metrics["original"][0:1]
+                    epoch_recon = metrics["recon"][0:1]
 
                 if batch_idx % self.log_interval == 0:
                     pbar.set_postfix(
@@ -180,11 +207,20 @@ class PretrainEngine:
                     )
 
             train_loss = sum(epoch_losses) / len(epoch_losses)
+            self.train_losses.append(train_loss)
+
+            # Calculate a simple "accuracy" metric (negative normalized MSE)
+            train_metric = 1.0 / (1.0 + train_loss)
+            self.train_metrics.append(train_metric)
 
             # ---- Validate ----
             val_loss: float | None = None
+            val_metric: float | None = None
             if val_loader is not None and epoch % self.val_interval == 0:
-                val_loss = self._validate(val_loader)
+                val_loss, val_metric = self._validate(val_loader)
+                self.val_losses.append(val_loss)
+                self.val_metrics.append(val_metric if val_metric is not None else 0.0)
+
                 if not math.isnan(val_loss) and val_loss < best_val_loss:
                     best_val_loss = val_loss
                     self._save_checkpoint("best_encoder.pt")
@@ -192,6 +228,14 @@ class PretrainEngine:
             # Always save best on first epoch as fallback
             if epoch == 0:
                 self._save_checkpoint("best_encoder.pt")
+
+            # Store reconstruction sample for visualization
+            if self.visualize and epoch_original is not None and epoch_recon is not None:
+                self.recon_samples.append({
+                    "original": epoch_original[0].numpy(),
+                    "reconstruction": epoch_recon[0].numpy(),
+                    "epoch": epoch + 1,
+                })
 
             # ---- Log epoch ----
             lr_now = self.optimizer.param_groups[0]["lr"]
@@ -204,9 +248,13 @@ class PretrainEngine:
             # Save latest
             self._save_checkpoint("last_encoder.pt")
 
+        # ---- Final visualization ----
+        if self.visualize:
+            self._save_visualizations()
+
         self.logger.info("Pre-training complete.")
 
-    def _validate(self, val_loader: DataLoader) -> float:
+    def _validate(self, val_loader: DataLoader) -> tuple[float, float | None]:
         self.model.eval()
         losses: list[float] = []
 
@@ -217,7 +265,37 @@ class PretrainEngine:
                 loss = mse_sam_loss(recon, x, lambda_sam=0.1)
                 losses.append(loss.item())
 
-        return sum(losses) / len(losses)
+        val_loss = sum(losses) / len(losses)
+        val_metric = 1.0 / (1.0 + val_loss)  # Simple normalized metric
+        return val_loss, val_metric
+
+    def _save_visualizations(self) -> None:
+        """Save all visualization plots after training."""
+        # 1. Training curve (loss + metric)
+        if self.train_losses:
+            plot_training_curve(
+                train_losses=self.train_losses,
+                val_losses=self.val_losses if self.val_losses else None,
+                train_metrics=self.train_metrics,
+                val_metrics=self.val_metrics if self.val_metrics else None,
+                metric_name="Score (1/(1+loss))",
+                title="HSI-MAE Pre-training",
+                save_path=self.save_dir / "training_curve.png",
+            )
+
+        # 2. Reconstruction progress
+        if self.recon_samples:
+            originals = [s["original"] for s in self.recon_samples]
+            reconstructions = [s["reconstruction"] for s in self.recon_samples]
+            epoch_labels = [f"Epoch {s['epoch']}" for s in self.recon_samples]
+            plot_reconstruction_progress(
+                originals=originals,
+                reconstructions=reconstructions,
+                epoch_labels=epoch_labels,
+                num_bands=self.bands,
+                title="Reconstruction Progress",
+                save_path=self.save_dir / "reconstruction_progress.png",
+            )
 
     # -------------------------------------------------------------------------
     # Checkpointing

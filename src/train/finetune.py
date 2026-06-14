@@ -14,6 +14,7 @@ from tqdm import tqdm
 from src.models.classifier import HSIFineTuner
 from src.models.encoder import HSIEncoder
 from src.utils.logger import get_logger
+from src.utils.visualization import plot_confusion_matrix, plot_training_curve
 
 # -------------------------------------------------------------------------
 # Metrics
@@ -103,6 +104,8 @@ class FinetuneEngine:
         save_dir: str = "checkpoints",
         log_interval: int = 10,
         seed: int = 42,
+        visualize: bool = True,
+        class_names: list[str] | None = None,
     ) -> None:
         if mode not in ("linear_probe", "full"):
             msg = f"mode must be 'linear_probe' or 'full', got {mode!r}"
@@ -114,6 +117,8 @@ class FinetuneEngine:
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.num_classes = num_classes
         self.log_interval = log_interval
+        self.visualize = visualize
+        self.class_names = class_names
         self.logger = get_logger()
         self.global_step = 0
         self.epoch = 0
@@ -134,6 +139,14 @@ class FinetuneEngine:
             f"FinetuneEngine | mode={mode} | device={self.device} | "
             f"encoder_dim={encoder.get_output_dim()} | num_classes={num_classes}"
         )
+
+        # Visualization history
+        self.train_losses: list[float] = []
+        self.val_losses: list[float] = []
+        self.train_metrics: list[float] = []  # accuracy
+        self.val_metrics: list[float] = []   # OA
+        self.all_preds: list[int] = []
+        self.all_labels: list[int] = []
 
     # -------------------------------------------------------------------------
     # Training step
@@ -182,6 +195,14 @@ class FinetuneEngine:
         """
         best_metrics: dict[str, float] = {"oa": 0.0}
 
+        # Clear history
+        self.train_losses = []
+        self.val_losses = []
+        self.train_metrics = []
+        self.val_metrics = []
+        self.all_preds = []
+        self.all_labels = []
+
         for epoch in range(epochs):
             self.epoch = epoch
             self.model.train()
@@ -203,11 +224,16 @@ class FinetuneEngine:
 
             train_loss = np.mean(epoch_losses)
             train_acc = np.mean(epoch_accs)
+            self.train_losses.append(train_loss)
+            self.train_metrics.append(train_acc)
 
             # ---- Validate ----
             val_metrics: dict[str, float] | None = None
             if val_loader is not None:
                 val_metrics = self._evaluate(val_loader)
+                self.val_losses.append(val_metrics["loss"])
+                self.val_metrics.append(val_metrics["oa"])
+
                 if val_metrics["oa"] > best_metrics["oa"]:
                     best_metrics = val_metrics
                     self._save_checkpoint("best_classifier.pt")
@@ -227,6 +253,14 @@ class FinetuneEngine:
             self.logger.info(msg)
 
             self._save_checkpoint("last_classifier.pt")
+
+        # Final evaluation on test set for visualization
+        if self.visualize and val_loader is not None:
+            self._collect_predictions(val_loader)
+
+        # ---- Final visualization ----
+        if self.visualize:
+            self._save_visualizations()
 
         self.logger.info(
             f"Best OA={best_metrics['oa']:.2%} | "
@@ -264,6 +298,52 @@ class FinetuneEngine:
             **f1_scores(all_labels, all_preds, self.num_classes),
         }
         return metrics
+
+    def _collect_predictions(self, loader: DataLoader) -> None:
+        """Collect all predictions and labels for visualization."""
+        self.model.eval()
+        self.all_preds = []
+        self.all_labels = []
+
+        with torch.no_grad():
+            for x, y in loader:
+                x = x.to(self.device)
+                y = y.to(self.device).squeeze()
+
+                logits = self.model(x).squeeze(-1).squeeze(-1)
+                preds = logits.argmax(dim=1)
+                self.all_preds.extend(preds.cpu().tolist())
+                self.all_labels.extend(y.cpu().tolist())
+
+        self.all_preds = np.array(self.all_preds)
+        self.all_labels = np.array(self.all_labels)
+
+    def _save_visualizations(self) -> None:
+        """Save all visualization plots after training."""
+        # 1. Training curve (loss + OA)
+        if self.train_losses:
+            plot_training_curve(
+                train_losses=self.train_losses,
+                val_losses=self.val_losses if self.val_losses else None,
+                train_metrics=self.train_metrics,
+                val_metrics=self.val_metrics if self.val_metrics else None,
+                metric_name="Accuracy / OA",
+                title="HSI-MAE Fine-tuning",
+                save_path=self.save_dir / "finetune_training_curve.png",
+            )
+
+        # 2. Confusion matrix heatmap
+        if len(self.all_preds) > 0 and len(self.all_labels) > 0:
+            class_names = self.class_names or [str(i) for i in range(self.num_classes)]
+            plot_confusion_matrix(
+                y_true=self.all_labels,
+                y_pred=self.all_preds,
+                num_classes=self.num_classes,
+                class_names=class_names,
+                title="Confusion Matrix (Fine-tuning)",
+                save_path=self.save_dir / "confusion_matrix.png",
+                normalize=True,
+            )
 
     # -------------------------------------------------------------------------
     # Checkpointing

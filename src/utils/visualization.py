@@ -211,7 +211,7 @@ def plot_classification_map(
 
 
 # -------------------------------------------------------------------------
-# Training Curve
+# Training Curve (Loss + Accuracy in one figure)
 # -------------------------------------------------------------------------
 
 
@@ -220,12 +220,14 @@ def plot_training_curve(
     val_losses: list[float] | None = None,
     train_metrics: list[float] | None = None,
     val_metrics: list[float] | None = None,
-    metric_name: str = "Metric",
+    metric_name: str = "Accuracy",
     title: str = "Training Curve",
     save_path: str | Path | None = None,
 ) -> dict | None:
     """
-    Plot training and validation loss/metric curves.
+    Plot training and validation loss/metric curves in one figure.
+
+    Loss and metric are plotted on the same figure with twin y-axes.
 
     Args:
         train_losses: List of training losses per epoch.
@@ -246,31 +248,38 @@ def plot_training_curve(
 
     epochs = range(1, len(train_losses) + 1)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    fig, ax1 = plt.subplots(figsize=(10, 5))
 
-    # Loss
-    ax1.plot(epochs, train_losses, label="Train", linewidth=2)
-    if val_losses:
-        ax1.plot(epochs, val_losses, label="Val", linewidth=2)
+    # Loss (left y-axis)
+    color_loss = "tab:red"
     ax1.set_xlabel("Epoch")
-    ax1.set_ylabel("Loss")
-    ax1.set_title("Loss")
-    ax1.legend()
+    ax1.set_ylabel("Loss", color=color_loss)
+    ax1.plot(epochs, train_losses, label="Train Loss", color=color_loss, linewidth=2, linestyle="-")
+    if val_losses:
+        ax1.plot(epochs, val_losses, label="Val Loss", color=color_loss, linewidth=2, linestyle="--")
+    ax1.tick_params(axis="y", labelcolor=color_loss)
     ax1.grid(alpha=0.3)
 
-    # Metric
+    # Metric (right y-axis)
     if train_metrics or val_metrics:
+        ax2 = ax1.twinx()
+        color_metric = "tab:blue"
+        ax2.set_ylabel(metric_name, color=color_metric)
         if train_metrics:
-            ax2.plot(epochs, train_metrics, label=f"Train {metric_name}", linewidth=2)
+            ax2.plot(epochs, train_metrics, label=f"Train {metric_name}", color=color_metric, linewidth=2, linestyle="-")
         if val_metrics:
-            ax2.plot(epochs, val_metrics, label=f"Val {metric_name}", linewidth=2)
-        ax2.set_xlabel("Epoch")
-        ax2.set_ylabel(metric_name)
-        ax2.set_title(metric_name)
-        ax2.legend()
-        ax2.grid(alpha=0.3)
+            ax2.plot(epochs, val_metrics, label=f"Val {metric_name}", color=color_metric, linewidth=2, linestyle="--")
+        ax2.tick_params(axis="y", labelcolor=color_metric)
+
+    # Combine legends
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    if train_metrics or val_metrics:
+        ax2 = fig.axes[1] if len(fig.axes) > 1 else None
+        if ax2:
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
     else:
-        ax2.axis("off")
+        ax1.legend(lines1, labels1, loc="upper right")
 
     fig.suptitle(title)
     fig.tight_layout()
@@ -279,4 +288,92 @@ def plot_training_curve(
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
 
     plt.show()
-    return {"fig": fig, "ax1": ax1, "ax2": ax2}
+    return {"fig": fig, "ax1": ax1, "ax2": ax2 if train_metrics or val_metrics else None}
+
+
+# -------------------------------------------------------------------------
+# Reconstruction Progress (multiple epochs in one figure)
+# -------------------------------------------------------------------------
+
+
+def plot_reconstruction_progress(
+    originals: list[np.ndarray],
+    reconstructions: list[np.ndarray],
+    epoch_labels: list[str] | None = None,
+    num_bands: int = 200,
+    title: str = "Reconstruction Progress",
+    save_path: str | Path | None = None,
+) -> dict | None:
+    """
+    Plot reconstruction progress across multiple epochs in one figure.
+
+    Each row shows original spectrum and its reconstruction for one epoch.
+
+    Args:
+        originals: List of original spectra [B, C, 1, 1] or [C,], take first sample.
+        reconstructions: List of reconstructed spectra same shape as originals.
+        epoch_labels: Optional labels for each epoch (e.g., "Epoch 1", "Epoch 10").
+        num_bands: Number of spectral bands for x-axis.
+        title: Plot title.
+        save_path: Optional path to save the figure.
+
+    Returns:
+        Axes dict if matplotlib available; else None.
+    """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+
+    n_epochs = len(originals)
+    if n_epochs == 0:
+        return None
+
+    # Extract first sample from batch if needed
+    originals = [orig[0] if orig.ndim == 4 else orig for orig in originals]
+    reconstructions = [recon[0] if recon.ndim == 4 else recon for recon in reconstructions]
+
+    # Squeeze extra dimensions
+    originals = [orig.squeeze() if orig.ndim > 1 else orig for orig in originals]
+    reconstructions = [recon.squeeze() if recon.ndim > 1 else recon for recon in reconstructions]
+
+    x = np.arange(num_bands)
+
+    fig, axes = plt.subplots(n_epochs, 2, figsize=(12, 3 * n_epochs), squeeze=False)
+
+    for i, (orig, recon) in enumerate(zip(originals, reconstructions)):
+        # Original
+        axes[i, 0].plot(x, orig, color="green", linewidth=1.5, label="Original")
+        axes[i, 0].set_ylabel(f"Epoch {i + 1}" if epoch_labels is None else epoch_labels[i])
+        axes[i, 0].set_ylim(0, 1)
+        axes[i, 0].grid(alpha=0.3)
+        if i == 0:
+            axes[i, 0].set_title("Original")
+        if i == n_epochs - 1:
+            axes[i, 0].set_xlabel("Band")
+
+        # Reconstruction
+        axes[i, 1].plot(x, orig, color="green", linewidth=1, alpha=0.5, label="Original")
+        axes[i, 1].plot(x, recon, color="red", linewidth=1.5, label="Reconstructed")
+        axes[i, 1].set_ylim(0, 1)
+        axes[i, 1].grid(alpha=0.3)
+        if i == 0:
+            axes[i, 1].set_title("Reconstruction")
+        if i == n_epochs - 1:
+            axes[i, 1].set_xlabel("Band")
+        if i == 0:
+            axes[i, 1].legend(fontsize=8)
+
+    fig.suptitle(title, y=1.0)
+    fig.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+
+    plt.show()
+    return {"fig": fig, "axes": axes}
+
+
+# -------------------------------------------------------------------------
+# Confusion Matrix (standalone, already implemented above)
+# -------------------------------------------------------------------------

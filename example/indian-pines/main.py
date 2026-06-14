@@ -69,6 +69,13 @@ DEFAULT_LABELS_PATH = str(DATA_DIR / "indian_pines_gt.npy")
 DEFAULT_ENCODER_PATH = str(_root_dir / "checkpoints" / "indian_pines_encoder.pt")
 DEFAULT_SAVE_DIR = str(_root_dir / "checkpoints")
 
+CLASS_NAMES = [
+    "Alfalfa", "Corn-notill", "Corn-mintill", "Corn",
+    "Grass-pasture", "Grass-trees", "Grass-pasture-mowed", "Hay-windrowed",
+    "Oats", "Soybeans-notill", "Soybeans-mintill", "Soybeans-clean",
+    "Wheat", "Woods", "Buildings-grass-trees", "Stone-steel-towers",
+]
+
 
 MENU = """
 === Indian Pines 数据集入口 ===
@@ -79,8 +86,9 @@ MENU = """
   [2] 预处理 Indian Pines (mat → npy)
   [3] 预训练 HSI-MAE (Indian Pines)
   [4] 微调分类 (Indian Pines)
-  [5] 查看当前环境变量
-  [6] 导出配置到 .env.local
+  [5] 查看可视化结果
+  [6] 查看当前环境变量
+  [7] 导出配置到 .env.local
 
   [0] 退出
 
@@ -194,8 +202,64 @@ def action_finetune() -> None:
         batch,
         "--save-dir",
         save_dir,
+        "--class-names",
+        ",".join(CLASS_NAMES),
     ]
     _run_script("run_finetune.py", args)
+
+
+def action_visualize() -> None:
+    """查看可视化结果."""
+    from pathlib import Path
+
+    import matplotlib.pyplot as plt
+
+    save_dir = Path(DEFAULT_SAVE_DIR)
+    image_files = {
+        "预训练损失曲线": save_dir / "training_curve.png",
+        "预训练重建进度": save_dir / "reconstruction_progress.png",
+        "微调训练曲线": save_dir / "finetune_training_curve.png",
+        "混淆矩阵": save_dir / "confusion_matrix.png",
+    }
+
+    print("\n--- 可视化结果 ---")
+    for name, path in image_files.items():
+        if path.exists():
+            print(f"  {name}: {path}")
+        else:
+            print(f"  {name}: (未找到)")
+
+    print("\n输入要查看的图片编号 (1-4)，或按回车返回:")
+    choice = input("> ").strip()
+
+    if choice == "1" and image_files["预训练损失曲线"].exists():
+        img = plt.imread(image_files["预训练损失曲线"])
+        plt.figure(figsize=(12, 6))
+        plt.imshow(img)
+        plt.axis("off")
+        plt.title("预训练损失曲线")
+        plt.show()
+    elif choice == "2" and image_files["预训练重建进度"].exists():
+        img = plt.imread(image_files["预训练重建进度"])
+        plt.figure(figsize=(12, 8))
+        plt.imshow(img)
+        plt.axis("off")
+        plt.title("预训练重建进度")
+        plt.show()
+    elif choice == "3" and image_files["微调训练曲线"].exists():
+        img = plt.imread(image_files["微调训练曲线"])
+        plt.figure(figsize=(12, 6))
+        plt.imshow(img)
+        plt.axis("off")
+        plt.title("微调训练曲线")
+        plt.show()
+    elif choice == "4" and image_files["混淆矩阵"].exists():
+        img = plt.imread(image_files["混淆矩阵"])
+        plt.figure(figsize=(12, 10))
+        plt.imshow(img)
+        plt.axis("off")
+        plt.title("混淆矩阵")
+        plt.show()
 
 
 def action_env() -> None:
@@ -267,8 +331,9 @@ def main() -> None:
         "2": action_preprocess,
         "3": action_pretrain,
         "4": action_finetune,
-        "5": action_env,
-        "6": action_export_env,
+        "5": action_visualize,
+        "6": action_env,
+        "7": action_export_env,
     }
 
     print("Indian Pines: 高光谱图像分类基准数据集")
