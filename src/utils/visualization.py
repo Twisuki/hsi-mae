@@ -254,9 +254,23 @@ def plot_training_curve(
     color_loss = "tab:red"
     ax1.set_xlabel("Epoch")
     ax1.set_ylabel("Loss", color=color_loss)
-    ax1.plot(epochs, train_losses, label="Train Loss", color=color_loss, linewidth=2, linestyle="-")
+    ax1.plot(
+        epochs,
+        train_losses,
+        label="Train Loss",
+        color=color_loss,
+        linewidth=2,
+        linestyle="-",
+    )
     if val_losses:
-        ax1.plot(epochs, val_losses, label="Val Loss", color=color_loss, linewidth=2, linestyle="--")
+        ax1.plot(
+            epochs,
+            val_losses,
+            label="Val Loss",
+            color=color_loss,
+            linewidth=2,
+            linestyle="--",
+        )
     ax1.tick_params(axis="y", labelcolor=color_loss)
     ax1.grid(alpha=0.3)
 
@@ -266,9 +280,23 @@ def plot_training_curve(
         color_metric = "tab:blue"
         ax2.set_ylabel(metric_name, color=color_metric)
         if train_metrics:
-            ax2.plot(epochs, train_metrics, label=f"Train {metric_name}", color=color_metric, linewidth=2, linestyle="-")
+            ax2.plot(
+                epochs,
+                train_metrics,
+                label=f"Train {metric_name}",
+                color=color_metric,
+                linewidth=2,
+                linestyle="-",
+            )
         if val_metrics:
-            ax2.plot(epochs, val_metrics, label=f"Val {metric_name}", color=color_metric, linewidth=2, linestyle="--")
+            ax2.plot(
+                epochs,
+                val_metrics,
+                label=f"Val {metric_name}",
+                color=color_metric,
+                linewidth=2,
+                linestyle="--",
+            )
         ax2.tick_params(axis="y", labelcolor=color_metric)
 
     # Combine legends
@@ -288,7 +316,11 @@ def plot_training_curve(
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
 
     plt.show()
-    return {"fig": fig, "ax1": ax1, "ax2": ax2 if train_metrics or val_metrics else None}
+    return {
+        "fig": fig,
+        "ax1": ax1,
+        "ax2": ax2 if train_metrics or val_metrics else None,
+    }
 
 
 # -------------------------------------------------------------------------
@@ -331,11 +363,15 @@ def plot_reconstruction_progress(
 
     # Extract first sample from batch if needed
     originals = [orig[0] if orig.ndim == 4 else orig for orig in originals]
-    reconstructions = [recon[0] if recon.ndim == 4 else recon for recon in reconstructions]
+    reconstructions = [
+        recon[0] if recon.ndim == 4 else recon for recon in reconstructions
+    ]
 
     # Squeeze extra dimensions
     originals = [orig.squeeze() if orig.ndim > 1 else orig for orig in originals]
-    reconstructions = [recon.squeeze() if recon.ndim > 1 else recon for recon in reconstructions]
+    reconstructions = [
+        recon.squeeze() if recon.ndim > 1 else recon for recon in reconstructions
+    ]
 
     x = np.arange(num_bands)
 
@@ -344,7 +380,9 @@ def plot_reconstruction_progress(
     for i, (orig, recon) in enumerate(zip(originals, reconstructions)):
         # Original
         axes[i, 0].plot(x, orig, color="green", linewidth=1.5, label="Original")
-        axes[i, 0].set_ylabel(f"Epoch {i + 1}" if epoch_labels is None else epoch_labels[i])
+        axes[i, 0].set_ylabel(
+            f"Epoch {i + 1}" if epoch_labels is None else epoch_labels[i]
+        )
         axes[i, 0].set_ylim(0, 1)
         axes[i, 0].grid(alpha=0.3)
         if i == 0:
@@ -353,7 +391,9 @@ def plot_reconstruction_progress(
             axes[i, 0].set_xlabel("Band")
 
         # Reconstruction
-        axes[i, 1].plot(x, orig, color="green", linewidth=1, alpha=0.5, label="Original")
+        axes[i, 1].plot(
+            x, orig, color="green", linewidth=1, alpha=0.5, label="Original"
+        )
         axes[i, 1].plot(x, recon, color="red", linewidth=1.5, label="Reconstructed")
         axes[i, 1].set_ylim(0, 1)
         axes[i, 1].grid(alpha=0.3)

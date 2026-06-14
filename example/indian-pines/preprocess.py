@@ -36,7 +36,9 @@ def parse_args() -> argparse.Namespace:
 
 def find_mat_files(input_dir: Path) -> tuple[Path | None, Path | None]:
     """查找 .mat 文件."""
-    data_files = list(input_dir.glob("*corrected.mat")) + list(input_dir.glob("*Corrected.mat"))
+    data_files = list(input_dir.glob("*corrected.mat")) + list(
+        input_dir.glob("*Corrected.mat")
+    )
     gt_files = list(input_dir.glob("*gt.mat")) + list(input_dir.glob("*GT.mat"))
 
     data_path = data_files[0] if data_files else None
@@ -147,10 +149,22 @@ def preprocess_and_save(
     print("\n类别分布:")
     unique, counts = np.unique(labels, return_counts=True)
     class_names = [
-        "Alfalfa", "Corn-notill", "Corn-mintill", "Corn",
-        "Grass-pasture", "Grass-trees", "Grass-pasture-mowed", "Hay-windrowed",
-        "Oats", "Soybeans-notill", "Soybeans-mintill", "Soybeans-clean",
-        "Wheat", "Woods", "Buildings-grass-trees", "Stone-steel-towers",
+        "Alfalfa",
+        "Corn-notill",
+        "Corn-mintill",
+        "Corn",
+        "Grass-pasture",
+        "Grass-trees",
+        "Grass-pasture-mowed",
+        "Hay-windrowed",
+        "Oats",
+        "Soybeans-notill",
+        "Soybeans-mintill",
+        "Soybeans-clean",
+        "Wheat",
+        "Woods",
+        "Buildings-grass-trees",
+        "Stone-steel-towers",
     ]
     for u, c in zip(unique, counts):
         if u == 0:
@@ -176,7 +190,9 @@ def main() -> None:
 
     print("\n预处理完成!")
     print("\n现在可以使用以下命令进行预训练:")
-    print(f"  python scripts/run_pretrain.py --data-path {output_dir / 'indian_pines.npy'}")
+    print(
+        f"  python scripts/run_pretrain.py --data-path {output_dir / 'indian_pines.npy'}"
+    )
     print("\n或使用交互式入口:")
     print("  python example/indian-pines/main.py")
 

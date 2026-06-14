@@ -76,10 +76,22 @@ NUM_CLASSES = 16
 DATA_DIR = _root_dir / "data" / "indian-pines"
 
 CLASS_NAMES = [
-    "Alfalfa", "Corn-notill", "Corn-mintill", "Corn",
-    "Grass-pasture", "Grass-trees", "Grass-pasture-mowed", "Hay-windrowed",
-    "Oats", "Soybeans-notill", "Soybeans-mintill", "Soybeans-clean",
-    "Wheat", "Woods", "Buildings-grass-trees", "Stone-steel-towers",
+    "Alfalfa",
+    "Corn-notill",
+    "Corn-mintill",
+    "Corn",
+    "Grass-pasture",
+    "Grass-trees",
+    "Grass-pasture-mowed",
+    "Hay-windrowed",
+    "Oats",
+    "Soybeans-notill",
+    "Soybeans-mintill",
+    "Soybeans-clean",
+    "Wheat",
+    "Woods",
+    "Buildings-grass-trees",
+    "Stone-steel-towers",
 ]
 
 
@@ -88,7 +100,8 @@ def _get_defaults() -> dict[str, str]:
     return {
         "data_path": _env("DATA_PATH") or str(DATA_DIR / "indian_pines.npy"),
         "labels_path": _env("LABELS_PATH") or str(DATA_DIR / "indian_pines_gt.npy"),
-        "encoder_path": _env("ENCODER_PATH") or str(_root_dir / "checkpoints" / "indian_pines_encoder.pt"),
+        "encoder_path": _env("ENCODER_PATH")
+        or str(_root_dir / "checkpoints" / "indian_pines_encoder.pt"),
         "save_dir": _env("SAVE_DIR") or str(_root_dir / "checkpoints"),
     }
 

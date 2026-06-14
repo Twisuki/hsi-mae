@@ -88,13 +88,19 @@ def main() -> None:
                 # Verify checkpoint is not corrupted (has NaN)
                 ckpt = torch.load(fallback, map_location="cpu", weights_only=False)
                 state = ckpt["encoder_state"]
-                has_nan = torch.isnan(torch.cat([v.flatten() for v in state.values()])).any().item()
+                has_nan = (
+                    torch.isnan(torch.cat([v.flatten() for v in state.values()]))
+                    .any()
+                    .item()
+                )
                 if not has_nan:
                     encoder_path = fallback
                     logger.info(f"Using healthy checkpoint: {encoder_path}")
                     break
                 else:
-                    logger.warning(f"Checkpoint {fallback} contains NaN, trying next...")
+                    logger.warning(
+                        f"Checkpoint {fallback} contains NaN, trying next..."
+                    )
         else:
             raise FileNotFoundError(
                 f"Encoder not found: {args.encoder_path} (no healthy checkpoints available)"

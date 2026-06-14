@@ -101,7 +101,9 @@ class PretrainEngine:
         self.val_losses: list[float] = []
         self.train_metrics: list[float] = []
         self.val_metrics: list[float] = []
-        self.recon_samples: list[dict[str, Any]] = []  # Store original/recon for visualization
+        self.recon_samples: list[
+            dict[str, Any]
+        ] = []  # Store original/recon for visualization
 
     # -------------------------------------------------------------------------
     # Learning rate schedule
@@ -247,12 +249,18 @@ class PretrainEngine:
                 self._save_checkpoint("best_encoder.pt")
 
             # Store reconstruction sample for visualization
-            if self.visualize and epoch_original is not None and epoch_recon is not None:
-                self.recon_samples.append({
-                    "original": epoch_original[0].numpy(),
-                    "reconstruction": epoch_recon[0].numpy(),
-                    "epoch": epoch + 1,
-                })
+            if (
+                self.visualize
+                and epoch_original is not None
+                and epoch_recon is not None
+            ):
+                self.recon_samples.append(
+                    {
+                        "original": epoch_original[0].numpy(),
+                        "reconstruction": epoch_recon[0].numpy(),
+                        "epoch": epoch + 1,
+                    }
+                )
 
             # ---- Log epoch ----
             lr_now = self.optimizer.param_groups[0]["lr"]

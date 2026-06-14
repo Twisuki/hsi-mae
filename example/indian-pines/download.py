@@ -71,7 +71,9 @@ def download_indian_pines(output_dir: Path) -> None:
             if filepath.exists():
                 filepath.unlink()
             print("\n请手动下载数据集:")
-            print("  1. 访问 https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes")
+            print(
+                "  1. 访问 https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes"
+            )
             print("  2. 下载 Indian Pines 数据集")
             print(f"  3. 将 .mat 文件放置到 {output_dir} 目录")
             sys.exit(1)

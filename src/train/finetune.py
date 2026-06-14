@@ -144,7 +144,7 @@ class FinetuneEngine:
         self.train_losses: list[float] = []
         self.val_losses: list[float] = []
         self.train_metrics: list[float] = []  # accuracy
-        self.val_metrics: list[float] = []   # OA
+        self.val_metrics: list[float] = []  # OA
         self.all_preds: list[int] = []
         self.all_labels: list[int] = []
 

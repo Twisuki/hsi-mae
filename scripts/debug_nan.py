@@ -9,20 +9,24 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import torch
-import numpy as np
-from src.models.encoder import HSIEncoder
-from src.models.classifier import HSIFineTuner
-from src.datasets import HSIDataset
 from torch.utils.data import DataLoader
+
+from src.datasets import HSIDataset
+from src.models.classifier import HSIFineTuner
+from src.models.encoder import HSIEncoder
+
 
 def check_tensor(name: str, t: torch.Tensor) -> bool:
     """Check if tensor has NaN or Inf."""
     has_nan = torch.isnan(t).any().item()
     has_inf = torch.isinf(t).any().item()
-    print(f"  {name}: shape={t.shape}, dtype={t.dtype}, device={t.device}, "
-          f"min={t.min().item():.4f}, max={t.max().item():.4f}, "
-          f"nan={has_nan}, inf={has_inf}")
+    print(
+        f"  {name}: shape={t.shape}, dtype={t.dtype}, device={t.device}, "
+        f"min={t.min().item():.4f}, max={t.max().item():.4f}, "
+        f"nan={has_nan}, inf={has_inf}"
+    )
     return has_nan or has_inf
+
 
 def main():
     data_path = "data/indian-pines/indian_pines.npy"
@@ -34,7 +38,11 @@ def main():
     print(f"  Keys in checkpoint: {list(ckpt.keys())}")
 
     encoder_state = ckpt["encoder_state"]
-    has_nan = torch.isnan(torch.cat([v.flatten() for v in encoder_state.values()])).any().item()
+    has_nan = (
+        torch.isnan(torch.cat([v.flatten() for v in encoder_state.values()]))
+        .any()
+        .item()
+    )
     print(f"  Encoder state has NaN: {has_nan}")
 
     print("\n=== Creating encoder ===")
@@ -52,7 +60,7 @@ def main():
 
     print("\n=== Creating fine-tuner ===")
     model = HSIFineTuner(encoder=encoder, num_classes=16, classifier_variant="mlp")
-    print(f"  Model created")
+    print("  Model created")
 
     print("\n=== Moving model to CUDA ===")
     if torch.cuda.is_available():
@@ -65,8 +73,10 @@ def main():
             if torch.isnan(param).any() or torch.isinf(param).any():
                 print(f"  NaN/Inf in classifier.{name}: {param.shape}")
             else:
-                print(f"  OK: classifier.{name}: {param.shape}, "
-                      f"min={param.min().item():.4f}, max={param.max().item():.4f}")
+                print(
+                    f"  OK: classifier.{name}: {param.shape}, "
+                    f"min={param.min().item():.4f}, max={param.max().item():.4f}"
+                )
 
         print("\n=== Loading a batch from dataset ===")
         ds = HSIDataset(
@@ -107,8 +117,7 @@ def main():
         print(f"  Logits shape: {logits.shape}")
 
         loss = torch.nn.functional.cross_entropy(
-            logits.squeeze(-1).squeeze(-1),
-            y.squeeze()
+            logits.squeeze(-1).squeeze(-1), y.squeeze()
         )
         print(f"  Loss: {loss.item():.4f}")
 
@@ -124,7 +133,9 @@ def main():
                 if torch.isnan(param.grad).any() or torch.isinf(param.grad).any():
                     print(f"  NaN/Inf gradient in {name}")
                 else:
-                    print(f"  OK: gradient in {name}, grad_norm={param.grad.norm().item():.4f}")
+                    print(
+                        f"  OK: gradient in {name}, grad_norm={param.grad.norm().item():.4f}"
+                    )
             else:
                 print(f"  No gradient: {name}")
 
@@ -154,8 +165,7 @@ def main():
         check_tensor("Logits", logits)
 
         loss = torch.nn.functional.cross_entropy(
-            logits.squeeze(-1).squeeze(-1),
-            y.squeeze()
+            logits.squeeze(-1).squeeze(-1), y.squeeze()
         )
         print(f"  Loss: {loss.item():.4f}")
 
@@ -163,6 +173,7 @@ def main():
             print("  WARNING: Loss is NaN on CPU!")
         else:
             print("  Loss is valid on CPU")
+
 
 if __name__ == "__main__":
     main()
