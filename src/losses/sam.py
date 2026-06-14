@@ -22,15 +22,15 @@ def sam_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     The arccos / π normalization maps [0, π] → [0, 1].
 
     Args:
-        pred: Predicted tensor, shape [..., C] where C is the number of bands.
+        pred: Predicted tensor, shape [B, C, H, W] where C is the number of bands.
         target: Target tensor, same shape as pred.
 
     Returns:
         Scalar SAM loss (mean over all spatial pixels and batch).
     """
-    # Flatten spatial dims: [B, C, H, W] → [N, C]
-    flat_pred = pred.reshape(-1, pred.shape[-1])
-    flat_target = target.reshape(-1, target.shape[-1])
+    # Flatten spatial dims: [B, C, H, W] → [B*H*W, C]
+    flat_pred = pred.reshape(-1, pred.shape[1])
+    flat_target = target.reshape(-1, target.shape[1])
 
     # L2 normalize along band axis
     norm_pred = F.normalize(flat_pred, dim=1)

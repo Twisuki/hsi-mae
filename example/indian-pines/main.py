@@ -18,12 +18,22 @@ _root_dir = _current_dir.parent.parent  # 项目根目录
 
 
 def _load_env() -> None:
-    """加载环境变量."""
-    env_file = _root_dir / ".env"
-    env_local = _root_dir / ".env.local"
+    """加载环境变量.
 
-    if env_local.exists():
-        _load_dotenv(env_local)
+    优先级（从高到低）:
+    1. 本文件夹的 .env.local (example/indian-pines/.env.local)
+    2. 项目根目录的 .env.local
+    3. 项目根目录的 .env
+    """
+    env_local_self = _current_dir / ".env.local"
+    env_local_root = _root_dir / ".env.local"
+    env_file = _root_dir / ".env"
+
+    if env_local_self.exists():
+        _load_dotenv(env_local_self)
+        print("[env] loaded: example/indian-pines/.env.local")
+    elif env_local_root.exists():
+        _load_dotenv(env_local_root)
         print("[env] loaded: .env.local")
     elif env_file.exists():
         _load_dotenv(env_file)
@@ -64,10 +74,6 @@ def _env(key: str) -> str:
 BANDS = 200
 NUM_CLASSES = 16
 DATA_DIR = _root_dir / "data" / "indian-pines"
-DEFAULT_DATA_PATH = str(DATA_DIR / "indian_pines.npy")
-DEFAULT_LABELS_PATH = str(DATA_DIR / "indian_pines_gt.npy")
-DEFAULT_ENCODER_PATH = str(_root_dir / "checkpoints" / "indian_pines_encoder.pt")
-DEFAULT_SAVE_DIR = str(_root_dir / "checkpoints")
 
 CLASS_NAMES = [
     "Alfalfa", "Corn-notill", "Corn-mintill", "Corn",
@@ -75,6 +81,16 @@ CLASS_NAMES = [
     "Oats", "Soybeans-notill", "Soybeans-mintill", "Soybeans-clean",
     "Wheat", "Woods", "Buildings-grass-trees", "Stone-steel-towers",
 ]
+
+
+def _get_defaults() -> dict[str, str]:
+    """获取默认路径（在环境变量加载后调用）。"""
+    return {
+        "data_path": _env("DATA_PATH") or str(DATA_DIR / "indian_pines.npy"),
+        "labels_path": _env("LABELS_PATH") or str(DATA_DIR / "indian_pines_gt.npy"),
+        "encoder_path": _env("ENCODER_PATH") or str(_root_dir / "checkpoints" / "indian_pines_encoder.pt"),
+        "save_dir": _env("SAVE_DIR") or str(_root_dir / "checkpoints"),
+    }
 
 
 MENU = """
@@ -109,9 +125,10 @@ def action_preprocess() -> None:
 
 def action_pretrain() -> None:
     print("\n--- 预训练 HSI-MAE (Indian Pines) ---")
+    defaults = _get_defaults()
 
-    data_path = input(f"数据路径 (默认 {DEFAULT_DATA_PATH}): ").strip()
-    data_path = data_path or DEFAULT_DATA_PATH
+    data_path = input(f"数据路径 (默认 {defaults['data_path']}): ").strip()
+    data_path = data_path or defaults["data_path"]
 
     dim = input(f"Encoder 维度 (默认 {_env('ENCODER_DIM')}): ").strip()
     dim = dim or _env("ENCODER_DIM")
@@ -128,8 +145,8 @@ def action_pretrain() -> None:
     batch = input(f"Batch size (默认 {_env('BATCH_SIZE')}): ").strip()
     batch = batch or _env("BATCH_SIZE")
 
-    save_dir = input(f"保存目录 (默认 {DEFAULT_SAVE_DIR}): ").strip()
-    save_dir = save_dir or DEFAULT_SAVE_DIR
+    save_dir = input(f"保存目录 (默认 {defaults['save_dir']}): ").strip()
+    save_dir = save_dir or defaults["save_dir"]
 
     device = input(f"设备 (cuda/cpu, 默认 {_env('DEVICE')}): ").strip()
     device = device or _env("DEVICE")
@@ -159,15 +176,16 @@ def action_pretrain() -> None:
 
 def action_finetune() -> None:
     print("\n--- 微调分类 (Indian Pines) ---")
+    defaults = _get_defaults()
 
-    data_path = input(f"数据路径 (默认 {DEFAULT_DATA_PATH}): ").strip()
-    data_path = data_path or DEFAULT_DATA_PATH
+    data_path = input(f"数据路径 (默认 {defaults['data_path']}): ").strip()
+    data_path = data_path or defaults["data_path"]
 
-    labels_path = input(f"标签路径 (默认 {DEFAULT_LABELS_PATH}): ").strip()
-    labels_path = labels_path or DEFAULT_LABELS_PATH
+    labels_path = input(f"标签路径 (默认 {defaults['labels_path']}): ").strip()
+    labels_path = labels_path or defaults["labels_path"]
 
-    encoder_path = input(f"预训练模型路径 (默认 {DEFAULT_ENCODER_PATH}): ").strip()
-    encoder_path = encoder_path or DEFAULT_ENCODER_PATH
+    encoder_path = input(f"预训练模型路径 (默认 {defaults['encoder_path']}): ").strip()
+    encoder_path = encoder_path or defaults["encoder_path"]
 
     mode = input(
         f"微调模式 (linear_probe / full, 默认 {_env('FINETUNE_MODE')}): "
@@ -180,8 +198,8 @@ def action_finetune() -> None:
     batch = input(f"Batch size (默认 {_env('BATCH_SIZE')}): ").strip()
     batch = batch or _env("BATCH_SIZE")
 
-    save_dir = input(f"保存目录 (默认 {DEFAULT_SAVE_DIR}): ").strip()
-    save_dir = save_dir or DEFAULT_SAVE_DIR
+    save_dir = input(f"保存目录 (默认 {defaults['save_dir']}): ").strip()
+    save_dir = save_dir or defaults["save_dir"]
 
     args = [
         "--data-path",
@@ -214,7 +232,8 @@ def action_visualize() -> None:
 
     import matplotlib.pyplot as plt
 
-    save_dir = Path(DEFAULT_SAVE_DIR)
+    defaults = _get_defaults()
+    save_dir = Path(defaults["save_dir"])
     image_files = {
         "预训练损失曲线": save_dir / "training_curve.png",
         "预训练重建进度": save_dir / "reconstruction_progress.png",
@@ -291,8 +310,8 @@ def action_env() -> None:
 
 def action_export_env() -> None:
     print("\n--- 导出配置到 .env.local ---")
-    print("将当前值写入 .env.local, 优先级高于 .env, 不提交到 git")
-    path = _root_dir / ".env.local"
+    print("将当前值写入本文件夹的 .env.local, 优先级最高, 不提交到 git")
+    path = _current_dir / ".env.local"
     lines = ["# Indian Pines 数据集配置\n"]
     for key in [
         "DATA_PATH",

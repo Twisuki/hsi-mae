@@ -132,10 +132,27 @@ class PretrainEngine:
         recon, x_masked, mask = self.model(x)
 
         loss = mse_sam_loss(recon, x, lambda_sam=0.1)
+
+        # Check for nan loss
+        if torch.isnan(loss):
+            self.logger.warning("Loss is NaN, skipping this step")
+            return {
+                "loss": float("nan"),
+                "grad_norm": 0.0,
+                "lr": self.optimizer.param_groups[0]["lr"],
+                "recon": recon.detach().cpu(),
+                "original": x.detach().cpu(),
+            }
+
         loss.backward()
 
         # Gradient clipping
         grad_norm = nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+
+        # Check for exploding gradients
+        if grad_norm > 100:
+            self.logger.warning(f"Exploding gradient: grad_norm={grad_norm:.2f}")
+
         self.optimizer.step()
 
         return {

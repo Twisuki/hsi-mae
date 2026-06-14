@@ -81,13 +81,23 @@ def main() -> None:
     )
     encoder_path = Path(args.encoder_path)
     if not encoder_path.exists():
-        fallback = Path(args.save_dir) / "final_encoder.pt"
-        if fallback.exists():
-            encoder_path = fallback
-            logger.info(f"best_encoder.pt not found, using {encoder_path}")
+        # Fallback chain: try healthy checkpoints before final_encoder.pt
+        for candidate in ["best_encoder.pt", "last_encoder.pt", "final_encoder.pt"]:
+            fallback = Path(args.save_dir) / candidate
+            if fallback.exists():
+                # Verify checkpoint is not corrupted (has NaN)
+                ckpt = torch.load(fallback, map_location="cpu", weights_only=False)
+                state = ckpt["encoder_state"]
+                has_nan = torch.isnan(torch.cat([v.flatten() for v in state.values()])).any().item()
+                if not has_nan:
+                    encoder_path = fallback
+                    logger.info(f"Using healthy checkpoint: {encoder_path}")
+                    break
+                else:
+                    logger.warning(f"Checkpoint {fallback} contains NaN, trying next...")
         else:
             raise FileNotFoundError(
-                f"Encoder not found: {args.encoder_path} (tried fallback: {fallback})"
+                f"Encoder not found: {args.encoder_path} (no healthy checkpoints available)"
             )
     ckpt = torch.load(encoder_path, map_location="cpu", weights_only=False)
     encoder.load_state_dict(ckpt["encoder_state"])

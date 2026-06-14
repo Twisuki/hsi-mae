@@ -9,7 +9,16 @@
       "Bash(python -m ruff check .)",
       "Bash(py -m ruff check .)",
       "Bash(.venv/Scripts/python.exe -m ruff check .)",
-      "Bash(.venv/Scripts/python.exe -m ruff check . --fix)"
+      "Bash(.venv/Scripts/python.exe -m ruff check . --fix)",
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "Bash(python *)",
+      "Bash(where python *)",
+      "Bash(cmd *)",
+      "Read(//usr/**)",
+      "Bash(ls /bin/python*)",
+      "Bash(/c/Users/Twisuki/AppData/Local/Programs/Python/Python312/python.exe *)",
+      "Bash(.venv/Scripts/python.exe *)",
+      "Bash(git rm *)"
     ]
   }
 }
