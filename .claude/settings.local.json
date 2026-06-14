@@ -3,7 +3,9 @@
     "allow": [
       "Bash(ruff check:*)",
       "Bash(uv run:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "WebSearch",
+      "WebFetch(domain:www.ehu.eus)"
     ]
   }
 }
